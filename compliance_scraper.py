@@ -744,6 +744,18 @@ counties = {
     ]
 }
 
+
+def get_state_array():
+    search_lookup = requests.get('https://echo.epa.gov/app/scripts/facility_search/search_lookups.js')
+    state_ids_string = re.search(
+        r'stateArray\s*=\s*\[(?P<state_ids>(.+?))\]',
+        search_lookup.text,
+        re.DOTALL
+    ).groupdict()['state_ids']
+    state_id_lines = re.findall(r'"(.+?)"', state_ids_string)
+    return list(map((lambda line: line.split(' - ', 2)[0]), state_id_lines))
+
+
 q_columns = '116,70,87,104,138,2,137,3,4,5,6,1,0,7,9,164,10,165,21,123,124,15,16,55,71,90,136,105,111,56,72,91,106,47,44,46,68,85,102,109,33,35,34,59,76,93,112,153,29,28,121,36,61,78,95,107,38,39,62,79,96,108,40,41,42,43,64,81,98,2,137,3,4,5,1,0,47,44,33,38,2,3,1,15,55,71,105,68,85,102,109,35,36,39,40,43'
 
 
@@ -803,7 +815,7 @@ def download_state_csv(state):
 
 
 def main():
-    for state_string in counties:
+    for state_string in get_state_array():
         download_state_csv(state_string)
 
 
