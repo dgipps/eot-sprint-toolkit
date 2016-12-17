@@ -1,4 +1,5 @@
 import json
+import re
 import requests
 
 
@@ -73,6 +74,15 @@ state_array = [
     "WY - WY - Wyoming",
 ]
 
+def get_state_array():
+    search_lookup = requests.get('https://echo.epa.gov/app/scripts/facility_search/search_lookups.js')
+    state_ids_string = re.search(
+        r'stateArray\s*=\s*\[(?P<state_ids>(.+?))\]',
+        search_lookup.text,
+        re.DOTALL
+    ).groupdict()['state_ids']
+    state_id_lines = re.findall(r'"(.+?)"', state_ids_string)
+    return list(map((lambda line: line.split(' - ', 2)[0]), state_id_lines))
 
 def download_csv(state):
     print('Working on {}'.format(state))
